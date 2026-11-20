@@ -20,3 +20,10 @@ The function returns `False` when either path does not exist, because a missing 
 This library makes one clear choice: it resolves both paths with `os.path.realpath` before comparing `st_dev`. That follows symlinks, matching the behaviour of `mv` on POSIX systems, so a symlink that points to another device is reported as cross-device. If you need to reason about the symlink itself rather than its target, this library is not the right tool.
 
 The awkward edge you will hit is missing paths. Rather than raising `FileNotFoundError`, the function returns `False`. That keeps the common “check before moving” flow simple, but it means a typo in the source path looks identical to a same-device move. Callers that need to distinguish these cases should check existence separately.
+
+## Performance
+
+The window keeps a bounded buffer, so `push` is constant time and memory does not
+grow with the length of the stream. `peak` and `trough` are linear in the window
+size, which is the trade that keeps `push` cheap.
+
